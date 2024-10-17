@@ -130,8 +130,14 @@ contract CrowdFunding {
         checkAndUpdateCampaignState();
     }
 
-    function withdraw() public {
+    function withdraw() public onlyOwner {
+        checkAndUpdateCampaignState();
+        require(state == CampaignState.Successful, "Campaign not successful.");
 
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No balance to withdraw");
+
+        payable(owner).transfer(balance);
     }
 
     function getContractBalance() public view returns(uint256) {
