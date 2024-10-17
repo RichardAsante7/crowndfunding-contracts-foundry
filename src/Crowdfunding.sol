@@ -12,6 +12,9 @@ contract CrowdFunding {
     address public s_owner;
     bool public s_paused;
 
+    enum CampaignState { Active, Successful, Failed };
+    CampaignState public s_state;
+
     //type declarations
     struct Tier {
         string name;
