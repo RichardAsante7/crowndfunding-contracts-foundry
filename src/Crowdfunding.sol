@@ -4,16 +4,30 @@ pragma solidity ^0.8.0;
 //imports
 
 contract CrowdFunding {
-
-    //type declarations
-
-
     //state variables
     string public s_name;
     string public s_description;
     uint256 public s_goal;
     uint256 public s_deadline;
     address public s_owner;
+    bool public s_paused;
+
+    //type declarations
+    struct Tier {
+        string name;
+        uint256 amount;
+        uint256 backers;
+    }
+
+    Tier[] public s_tiers;
+
+    struct Backer {
+        uint256 totalContribution;
+        mapping(uint256 => bool) fundedTiers;
+    }
+
+    mapping(address => Backer) public s_backers;
+
 
 
 
@@ -28,6 +42,21 @@ contract CrowdFunding {
 
     //modifiers
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
+    }
+
+    modifier campaignOpen() {
+        require(state == CampaignState.Active, "Campaign is not active.");
+        _;
+    }
+
+    modifier notPaused() {
+        require(!paused, "Contract is paused.");
+        _;
+    }
+
 
     //
     constructor(
@@ -41,9 +70,18 @@ contract CrowdFunding {
         goal = _goal;
         deadline = block.timestamp + (_duratyionInDays * 1 days);
         owner = _owner;
-        // state = CampaignState.Active;
+        state = CampaignState.Active;
     }
 
+    function checkAndUpdateCampaignState() internal {
+        if(state == CampaignState.Active) {
+            if(block.timestamp >= deadline) {
+                state = address(this).balance >= goal ? CampaignState.Successful : CampaignState.Failed;            
+            } else {
+                state = address(this).balance >= goal ? CampaignState.Successful : CampaignState.Active;
+            }
+        }
+    }
 
 
 
@@ -65,8 +103,8 @@ contract CrowdFunding {
     
 
     // Public functions
-    function fund() public {
-
+    function fund() public payable {
+        
     }
 
 
@@ -75,11 +113,12 @@ contract CrowdFunding {
     }
 
     function getContractBalance() public view returns(uint256) {
-        
+
 
     }
 
     // Internal functions
+
     
 
     // Private functions
