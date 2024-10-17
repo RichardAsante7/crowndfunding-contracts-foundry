@@ -169,7 +169,13 @@ contract CrowdFunding {
         return state;
     }
 
-    
+    function togglePause() public onlyOwner {
+        paused = !paused;
+    }
+
+    function extendDeadline(uint256 _daysToAdd) public onlyOwner campaignOpen {
+        deadline += _daysToAdd * 1 days;
+    }
 
 
     // Internal functions
