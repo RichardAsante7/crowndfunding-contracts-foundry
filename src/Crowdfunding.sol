@@ -88,13 +88,13 @@ contract CrowdFunding {
 
 
 
-    receive() external payable {
-        // ...
-    }
+    // receive() external payable {
+    //     // ...
+    // }
 
-    fallback() external {
-        // ...
-    }
+    // fallback() external {
+    //     // ...
+    // }
 
     // External functions
     
