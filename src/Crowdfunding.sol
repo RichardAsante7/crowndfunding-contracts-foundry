@@ -150,10 +150,27 @@ contract CrowdFunding {
         payable(msg.sender).transfer(amount);
     }
 
-    function getContractBalance() public view returns(uint256) {
-
-
+    function getContractBalance() public view returns (uint256) {
+        return address(this).balance;
     }
+
+    function hasFundedTier(address _backer, uint256 _tierIndex) public view returns (bool) {
+        return backers[_backer].fundedTiers[_tierIndex];
+    }
+
+    function getTiers() public view returns (Tier[] memory) {
+        return tiers;
+    }
+
+    function getCampaignStatus() public view returns (CampaignState) {
+        if (state == CampaignState.Active && block.timestamp > deadline) {
+            return address(this).balance >= goal ? CampaignState.Successful : CampaignState.Failed;
+        }
+        return state;
+    }
+
+    
+
 
     // Internal functions
 
