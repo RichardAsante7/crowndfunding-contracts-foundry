@@ -46,7 +46,7 @@ contract CrowdFunding {
     //modifiers
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Not the owner");
+        require(msg.sender == s_owner, "Not the owner");
         _;
     }
 
@@ -56,7 +56,7 @@ contract CrowdFunding {
     }
 
     modifier notPaused() {
-        require(!paused, "Contract is paused.");
+        require(!s_paused, "Contract is paused.");
         _;
     }
 
@@ -68,20 +68,20 @@ contract CrowdFunding {
         uint256 _goal, 
         uint256 _durationInDays
     ) {
-        name = _name;
-        description = _description;
-        goal = _goal;
-        deadline = block.timestamp + (_duratyionInDays * 1 days);
-        owner = _owner;
-        state = CampaignState.Active;
+        s_name = _name;
+        s_description = _description;
+        s_goal = _goal;
+        s_deadline = block.timestamp + (_duratyionInDays * 1 days);
+        s_owner = _owner;
+        s_state = CampaignState.Active;
     }
 
     function checkAndUpdateCampaignState() internal {
-        if(state == CampaignState.Active) {
-            if(block.timestamp >= deadline) {
-                state = address(this).balance >= goal ? CampaignState.Successful : CampaignState.Failed;            
+        if(s_state == CampaignState.Active) {
+            if(block.timestamp >= s_deadline) {
+                s_state = address(this).balance >= s_goal ? CampaignState.Successful : CampaignState.Failed;            
             } else {
-                state = address(this).balance >= goal ? CampaignState.Successful : CampaignState.Active;
+                s_state = address(this).balance >= s_goal ? CampaignState.Successful : CampaignState.Active;
             }
         }
     }
@@ -108,45 +108,45 @@ contract CrowdFunding {
     // Public functions
     function addTier(string memory _name,uint256 _amount) public onlyOwner {
         require(_amount > 0, "Amount must be greater than 0.");
-        tiers.push(Tier(_name, _amount, 0));
+        s_tiers.push(Tier(_name, _amount, 0));
     }
 
     function removeTier(uint256 _index) public onlyOwner {
-        require(_index < tiers.length, "Tier does not exist.");
-        tiers[_index] = tiers[tiers.length -1];
-        tiers.pop();
+        require(_index < s_tiers.length, "Tier does not exist.");
+        s_tiers[_index] = s_tiers[s_tiers.length -1];
+        s_tiers.pop();
     }
 
 
 
     function fund(uint256 _tierIndex) public payable campaignOpen notPaused {
-        require(_tierIndex < tiers.length, "Invalid tier.");
-        require(msg.value == tiers[_tierIndex].amount, "Incorrect amount.");
+        require(_tierIndex < s_tiers.length, "Invalid tier.");
+        require(msg.value == s_tiers[_tierIndex].amount, "Incorrect amount.");
 
-        tiers[_tierIndex].backers++;
-        backers[msg.sender].totalContribution += msg.value;
-        backers[msg.sender].fundedTiers[_tierIndex] = true;
+        s_tiers[_tierIndex].s_backers++;
+        s_backers[msg.sender].totalContribution += msg.value;
+        s_backers[msg.sender].fundedTiers[_tierIndex] = true;
 
         checkAndUpdateCampaignState();
     }
 
     function withdraw() public onlyOwner {
         checkAndUpdateCampaignState();
-        require(state == CampaignState.Successful, "Campaign not successful.");
+        require(s_state == CampaignState.Successful, "Campaign not successful.");
 
         uint256 balance = address(this).balance;
         require(balance > 0, "No balance to withdraw");
 
-        payable(owner).transfer(balance);
+        payable(s_owner).transfer(balance);
     }
 
     function refund() public {
         checkAndUpdateCampaignState();
-        require(state == CampaignState.Failed, "Refunds not available.");
-        uint256 amount = backers[msg.sender].totalContribution;
+        require(s_state == CampaignState.Failed, "Refunds not available.");
+        uint256 amount = s_backers[msg.sender].totalContribution;
         require(amount > 0, "No contribution to refund");
 
-        backers[msg.sender].totalContribution = 0;
+        s_backers[msg.sender].totalContribution = 0;
         payable(msg.sender).transfer(amount);
     }
 
@@ -155,26 +155,26 @@ contract CrowdFunding {
     }
 
     function hasFundedTier(address _backer, uint256 _tierIndex) public view returns (bool) {
-        return backers[_backer].fundedTiers[_tierIndex];
+        return s_backers[_backer].fundedTiers[_tierIndex];
     }
 
     function getTiers() public view returns (Tier[] memory) {
-        return tiers;
+        return s_tiers;
     }
 
     function getCampaignStatus() public view returns (CampaignState) {
-        if (state == CampaignState.Active && block.timestamp > deadline) {
-            return address(this).balance >= goal ? CampaignState.Successful : CampaignState.Failed;
+        if (s_state == CampaignState.Active && block.timestamp > s_deadline) {
+            return address(this).balance >= s_goal ? CampaignState.Successful : CampaignState.Failed;
         }
-        return state;
+        return s_state;
     }
 
     function togglePause() public onlyOwner {
-        paused = !paused;
+        s_paused = !s_paused;
     }
 
     function extendDeadline(uint256 _daysToAdd) public onlyOwner campaignOpen {
-        deadline += _daysToAdd * 1 days;
+        s_deadline += _daysToAdd * 1 days;
     }
 
 
