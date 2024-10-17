@@ -106,6 +106,19 @@ contract CrowdFunding {
     
 
     // Public functions
+    function addTier(string memory _name,uint256 _amount) public onlyOwner {
+        require(_amount > 0, "Amount must be greater than 0.");
+        tiers.push(Tier(_name, _amount, 0));
+    }
+
+    function removeTier(uint256 _index) public onlyOwner {
+        require(_index < tiers.length, "Tier does not exist.");
+        tiers[_index] = tiers[tiers.length -1];
+        tiers.pop();
+    }
+
+
+
     function fund(uint256 _tierIndex) public payable campaignOpen notPaused {
         require(_tierIndex < tiers.length, "Invalid tier.");
         require(msg.value == tiers[_tierIndex].amount, "Incorrect amount.");
