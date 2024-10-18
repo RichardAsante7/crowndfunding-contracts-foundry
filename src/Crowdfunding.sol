@@ -33,25 +33,13 @@ contract CrowdFunding {
 
 
 
-
-
-    //events
-
-    
-
-    //errors
-
-
-
-    //modifiers
-
     modifier onlyOwner() {
         require(msg.sender == s_owner, "Not the owner");
         _;
     }
 
     modifier campaignOpen() {
-        require(state == CampaignState.Active, "Campaign is not active.");
+        require(s_state == CampaignState.Active, "Campaign is not active.");
         _;
     }
 
@@ -61,20 +49,28 @@ contract CrowdFunding {
     }
 
 
-    //
+
     constructor(
         string memory _name,
         string memory _description,
         uint256 _goal, 
-        uint256 _durationInDays
+        uint256 _durationInDays,
+        // address _owner
     ) {
         s_name = _name;
         s_description = _description;
         s_goal = _goal;
-        s_deadline = block.timestamp + (_duratyionInDays * 1 days);
-        s_owner = _owner;
+        s_deadline = block.timestamp + (_durationInDays * 1 days);
+        s_owner = msg.sender;
+        // s_owner = _owner;
         s_state = CampaignState.Active;
     }
+
+
+    receive() external payable {
+        revert("Please use the fund() function to contribute.");
+    }
+
 
     function checkAndUpdateCampaignState() internal {
         if(s_state == CampaignState.Active) {
@@ -86,24 +82,6 @@ contract CrowdFunding {
         }
     }
 
-
-
-    // receive() external payable {
-    //     // ...
-    // }
-
-    // fallback() external {
-    //     // ...
-    // }
-
-    // External functions
-    
-
-    // External functions that are view
-    
-
-    // External functions that are pure
-    
 
     // Public functions
     function addTier(string memory _name,uint256 _amount) public onlyOwner {
@@ -176,13 +154,6 @@ contract CrowdFunding {
     function extendDeadline(uint256 _daysToAdd) public onlyOwner campaignOpen {
         s_deadline += _daysToAdd * 1 days;
     }
-
-
-    // Internal functions
-
-    
-
-    // Private functions
 
 
 }
