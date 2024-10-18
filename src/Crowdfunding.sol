@@ -12,7 +12,7 @@ contract CrowdFunding {
     address public s_owner;
     bool public s_paused;
 
-    enum CampaignState { Active, Successful, Failed };
+    enum CampaignState { Active, Successful, Failed }
     CampaignState public s_state;
 
     //type declarations
@@ -54,7 +54,7 @@ contract CrowdFunding {
         string memory _name,
         string memory _description,
         uint256 _goal, 
-        uint256 _durationInDays,
+        uint256 _durationInDays
         // address _owner
     ) {
         s_name = _name;
@@ -101,7 +101,7 @@ contract CrowdFunding {
         require(_tierIndex < s_tiers.length, "Invalid tier.");
         require(msg.value == s_tiers[_tierIndex].amount, "Incorrect amount.");
 
-        s_tiers[_tierIndex].s_backers++;
+        s_tiers[_tierIndex].backers++;
         s_backers[msg.sender].totalContribution += msg.value;
         s_backers[msg.sender].fundedTiers[_tierIndex] = true;
 
