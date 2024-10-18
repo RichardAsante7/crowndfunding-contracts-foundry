@@ -55,14 +55,13 @@ contract CrowdFunding {
         string memory _description,
         uint256 _goal, 
         uint256 _durationInDays
-        // address _owner
+        address _owner
     ) {
         s_name = _name;
         s_description = _description;
         s_goal = _goal;
         s_deadline = block.timestamp + (_durationInDays * 1 days);
-        s_owner = msg.sender;
-        // s_owner = _owner;
+        s_owner = _owner;
         s_state = CampaignState.Active;
     }
 
